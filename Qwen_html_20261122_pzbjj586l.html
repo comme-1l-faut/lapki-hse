@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лапки ВШЭ 🐾 Зооволонтёрство в Москве</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Caveat:wght@500;700&family=Nunito:wght@400;600;800&family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+  :root{
+    --cream:#fff6e6;
+    --peach:#ffd9b8;
+    --coral:#ff8a65;
+    --pink:#ff7aa2;
+    --mint:#9eddbd;
+    --sky:#a8d8ea;
+    --brown:#6b4423;
+    --dark:#3d2b1f;
+    --yellow:#ffd966;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  html{scroll-behavior:smooth}
+
+  body{
+    font-family:'Nunito',sans-serif;
+    color:var(--dark);
+    background:var(--cream);
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+
+  /* ===== АНИМИРОВАННЫЙ ФОН С ЛАПКАМИ И КОСТОЧКАМИ ===== */
+  .bg-pattern{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 20% 20%, #fff0dc 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, #ffe4ec 0%, transparent 50%),
+      var(--cream);
+  }
+  .bg-pattern::before, .bg-pattern::after{
+    content:"";
+    position:absolute;
+    inset:-50%;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='%23ffb88c' opacity='0.35'><ellipse cx='40' cy='50' rx='10' ry='8'/><circle cx='28' cy='38' r='5'/><circle cx='52' cy='38' r='5'/><circle cx='22' cy='50' r='4'/><circle cx='58' cy='50' r='4'/></g></svg>"),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='60' viewBox='0 0 100 60'><g fill='%23ff9ec4' opacity='0.3'><rect x='20' y='22' width='60' height='16' rx='8'/><circle cx='20' cy='30' r='10'/><circle cx='80' cy='30' r='10'/></g></svg>");
+    background-size:120px 120px, 180px 110px;
+    background-position:0 0, 60px 60px;
+    animation:drift 60s linear infinite;
+  }
+  .bg-pattern::after{
+    animation-duration:90s;
+    animation-direction:reverse;
+    opacity:0.7;
+  }
+  @keyframes drift{
+    from{transform:translate(0,0)}
+    to{transform:translate(-120px,-120px)}
+  }
+
+  /* ===== ШАПКА ===== */
+  header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    background:rgba(255,246,230,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:3px dashed var(--coral);
+    padding:14px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+  }
+  .logo{
+    font-family:'Fredoka',sans-serif;
+    font-size:28px;
+    font-weight:700;
+    color:var(--coral);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .logo .paw{
+    display:inline-block;
+    animation:wiggle 2s ease-in-out infinite;
+  }
+  @keyframes wiggle{
+    0%,100%{transform:rotate(-10deg)}
+    50%{transform:rotate(15deg)}
+  }
+  nav ul{
+    list-style:none;
+    display:flex;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  nav a{
+    text-decoration:none;
+    color:var(--dark);
+    font-family:'Comfortaa',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:6px 12px;
+    border-radius:20px;
+    transition:all .25s;
+  }
+  nav a:hover{
+    background:var(--yellow);
+    color:var(--brown);
+    transform:translateY(-2px);
+  }
+
+  /* ===== HERO / КАРТА ===== */
+  .hero{
+    padding:40px 30px 60px;
+    text-align:center;
+  }
+  .hero h1{
+    font-family:'Fredoka',sans-serif;
+    font-size:clamp(34px,5vw,58px);
+    color:var(--coral);
+    margin-bottom:10px;
+    text-shadow:2px 2px 0 var(--yellow);
+  }
+  .hero .sub{
+    font-family:'Caveat',cursive;
+    font-size:clamp(22px,3vw,32px);
+    color:var(--pink);
+    margin-bottom:30px;
+  }
+
+  #map{
+    width:min(1100px,95%);
+    height:520px;
+    margin:0 auto;
+    border-radius:30px;
+    border:5px solid var(--peach);
+    box-shadow:0 15px 40px rgba(255,138,101,0.25);
+    overflow:hidden;
+  }
+
+  /* Кастомный маркер-лапка */
+  .paw-marker{
+    background:none;
+    border:none;
+  }
+  .paw-marker svg{
+    width:42px;
+    height:42px;
+    filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));
+    transition:transform .2s;
+    cursor:pointer;
+  }
+  .paw-marker:hover svg{
+    transform:scale(1.25) rotate(-10deg);
+  }
+
+  /* Попап приюта */
+  .leaflet-popup-content-wrapper{
+    border-radius:20px !important;
+    padding:0 !important;
+    overflow:hidden;
+    border:3px solid var(--coral);
+  }
+  .leaflet-popup-content{
+    margin:0 !important;
+    width:280px !important;
+    font-family:'Nunito',sans-serif;
+  }
+  .shelter-card{
+    display:flex;
+    gap:12px;
+    padding:14px;
+    background:var(--cream);
+  }
+  .shelter-card img{
+    width:90px;
+    height:90px;
+    object-fit:cover;
+    border-radius:15px;
+    border:2px solid var(--peach);
+    flex-shrink:0;
+  }
+  .shelter-info h3{
+    font-family:'Fredoka',sans-serif;
+    color:var(--coral);
+    font-size:17px;
+    margin-bottom:4px;
+  }
+  .shelter-info p{
+    font-size:12px;
+    margin:3px 0;
+    color:var(--dark);
+  }
+  .shelter-info .help{
+    margin-top:8px;
+    padding:6px 10px;
+    background:var(--yellow);
+    border-radius:12px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--brown);
+  }
+
+  /* ===== СЕКЦИИ ===== */
+  section{
+    padding:70px 30px;
+    max-width:1200px;
+    margin:0 auto;
+  }
+  .section-title{
+    font-family:'Fredoka',sans-serif;
+    font-size:clamp(28px,4vw,44px);
+    color:var(--coral);
+    text-align:center;
+    margin-bottom:10px;
+    position:relative;
+    display:inline-block;
+    width:100%;
+  }
+  .section-title::after{
+    content:"🐾";
+    font-size:0.7em;
+    margin-left:10px;
+  }
+  .section-sub{
+    text-align:center;
+    font-family:'Caveat',cursive;
+    font-size:24px;
+    color:var(--pink);
+    margin-bottom:40px;
+  }
+
+  /* ===== КТО МЫ ===== */
+  .about{
+    background:linear-gradient(135deg, #fff 0%, #fff0dc 100%);
+    border-radius:40px;
+    padding:50px 40px;
+    border:4px dashed var(--mint);
+    position:relative;
+    overflow:hidden;
+  }
+  .about::before{
+    content:"🎓";
+    position:absolute;
+    top:20px;
+    right:30px;
+    font-size:60px;
+    opacity:0.2;
+  }
+  .about p{
+    font-size:18px;
+    max-width:800px;
+    margin:0 auto 20px;
+    text-align:center;
+  }
+  .about .highlight{
+    background:var(--yellow);
+    padding:2px 10px;
+    border-radius:12px;
+    font-weight:700;
+  }
+  .btn{
+    display:inline-block;
+    font-family:'Fredoka',sans-serif;
+    font-size:20px;
+    padding:14px 36px;
+    border-radius:50px;
+    border:none;
+    cursor:pointer;
+    text-decoration:none;
+    color:white;
+    background:linear-gradient(135deg, var(--coral), var(--pink));
+    box-shadow:0 6px 0 #c95a3e, 0 10px 20px rgba(255,122,162,0.3);
+    transition:all .2s;
+    margin-top:20px;
+  }
+  .btn:hover{
+    transform:translateY(3px);
+    box-shadow:0 3px 0 #c95a3e, 0 6px 12px rgba(255,122,162,0.3);
+  }
+  .btn:active{
+    transform:translateY(6px);
+    box-shadow:0 0 0 #c95a3e;
+  }
+
+  /* ===== КАЛЕНДАРЬ ===== */
+  .calendar-wrap{
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    flex-wrap:wrap;
+  }
+  .calendar{
+    background:white;
+    border-radius:25px;
+    padding:25px;
+    border:4px solid var(--sky);
+    box-shadow:0 10px 30px rgba(168,216,234,0.4);
+    width:340px;
+  }
+  .calendar-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+    font-family:'Fredoka',sans-serif;
+    color:var(--brown);
+  }
+  .calendar-header h3{font-size:22px}
+  .cal-nav{
+    background:var(--sky);
+    border:none;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    cursor:pointer;
+    font-weight:700;
+    color:var(--brown);
+    transition:all .2s;
+  }
+  .cal-nav:hover{background:var(--mint);transform:scale(1.1)}
+  .weekdays, .days{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:4px;
+  }
+  .weekdays div{
+    text-align:center;
+    font-weight:700;
+    font-size:13px;
+    color:var(--brown);
+    padding:6px 0;
+  }
+  .days div{
+    aspect-ratio:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    border-radius:10px;
+    position:relative;
+    cursor:default;
+    transition:all .2s;
+  }
+  .days div.other{color:#ccc}
+  .days div.today{
+    background:var(--yellow);
+    font-weight:800;
+    color:var(--brown);
+  }
+  .days div.trip{
+    background:var(--peach);
+    font-weight:700;
+    cursor:pointer;
+  }
+  .days div.trip::after{
+    content:"🐾";
+    position:absolute;
+    bottom:-2px;
+    right:-2px;
+    font-size:14px;
+    animation:bounce 1.5s ease-in-out infinite;
+  }
+  @keyframes bounce{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-4px)}
+  }
+  .days div.trip:hover{
+    background:var(--coral);
+    color:white;
+    transform:scale(1.1);
+  }
+  .trip-info{
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    border:4px solid var(--pink);
+    width:340px;
+    font-family:'Comfortaa',sans-serif;
+  }
+  .trip-info h4{
+    font-family:'Fredoka',sans-serif;
+    color:var(--pink);
+    font-size:22px;
+    margin-bottom:12px;
+  }
+  .trip-item{
+    padding:12px;
+    background:var(--cream);
+    border-radius:15px;
+    margin-bottom:10px;
+    border-left:5px solid var(--coral);
+  }
+  .trip-item .date{
+    font-weight:800;
+    color:var(--coral);
+    font-size:15px;
+  }
+
+  /* ===== КОРМУШКА / КАРУСЕЛЬ ===== */
+  .carousel-container{
+    position:relative;
+    max-width:900px;
+    margin:0 auto;
+  }
+  .carousel{
+    overflow:hidden;
+    border-radius:30px;
+    border:5px solid var(--yellow);
+    background:linear-gradient(180deg, #cfeeff 0%, #e8f7d4 60%, #c8e6a0 100%);
+    position:relative;
+    height:460px;
+  }
+  .carousel-scene{
+    position:relative;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+  }
+  /* Фон парка */
+  .park-bg{
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 50% 100%, #a8d86b 0%, transparent 60%),
+      linear-gradient(180deg, #bde4ff 0%, #d4f0c2 70%, #8fcf5a 100%);
+  }
+  .cloud{
+    position:absolute;
+    background:white;
+    border-radius:50px;
+    opacity:0.85;
+    animation:float 20s linear infinite;
+  }
+  .cloud::before, .cloud::after{
+    content:"";
+    position:absolute;
+    background:white;
+    border-radius:50%;
+  }
+  .c1{width:80px;height:25px;top:40px;left:-100px}
+  .c1::before{width:40px;height:40px;top:-20px;left:10px}
+  .c1::after{width:30px;height:30px;top:-15px;left:40px}
+  .c2{width:100px;height:30px;top:90px;left:-150px;animation-duration:28s;animation-delay:-10s}
+  .c2::before{width:50px;height:50px;top:-25px;left:15px}
+  .c2::after{width:35px;height:35px;top:-18px;left:55px}
+  @keyframes float{
+    from{transform:translateX(0)}
+    to{transform:translateX(1100px)}
+  }
+
+  /* Горка */
+  .slide{
+    position:absolute;
+    bottom:60px;
+    left:80px;
+    width:200px;
+    height:150px;
+  }
+  .slide-ramp{
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:180px;
+    height:100px;
+    background:linear-gradient(135deg, #ff9ec4 0%, #ff7aa2 100%);
+    clip-path:polygon(0 100%, 100% 0, 100% 100%);
+    border:3px solid #d65a82;
+  }
+  .slide-steps{
+    position:absolute;
+    bottom:0;
+    right:0;
+    width:30px;
+    height:100px;
+    background:repeating-linear-gradient(0deg, #ffd966 0, #ffd966 10px, #e8b84a 10px, #e8b84a 12px);
+    border:2px solid #c99a2e;
+  }
+
+  /* Собачки */
+  .doggo{
+    position:absolute;
+    cursor:pointer;
+    transition:transform .3s;
+    z-index:5;
+  }
+  .doggo:hover{transform:scale(1.15) rotate(-5deg);z-index:10}
+  .doggo svg{
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));
+  }
+
+  .d1{bottom:40px;left:320px}
+  .d2{bottom:130px;left:150px}
+  .d3{bottom:60px;right:120px}
+  .d4{bottom:180px;right:250px}
+  .d5{bottom:80px;left:50px}
+
+  /* Бабочка */
+  .butterfly{
+    position:absolute;
+    top:150px;
+    right:180px;
+    font-size:28px;
+    animation:fly 6s ease-in-out infinite;
+    z-index:4;
+  }
+  @keyframes fly{
+    0%,100%{transform:translate(0,0) rotate(-10deg)}
+    25%{transform:translate(30px,-20px) rotate(10deg)}
+    50%{transform:translate(-20px,-30px) rotate(-5deg)}
+    75%{transform:translate(20px,10px) rotate(15deg)}
+  }
+
+  /* Попап собаки */
+  .doggo-popup{
+    position:absolute;
+    bottom:100%;
+    left:50%;
+    transform:translateX(-50%) translateY(-10px);
+    background:white;
+    padding:18px;
+    border-radius:20px;
+    border:3px solid var(--pink);
+    width:260px;
+    opacity:0;
+    pointer-events:none;
+    transition:all .3s;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+    z-index:20;
+    font-size:14px;
+  }
+  .doggo:hover .doggo-popup{
+    opacity:1;
+    transform:translateX(-50%) translateY(-20px);
+    pointer-events:auto;
+  }
+  .doggo-popup h4{
+    font-family:'Fredoka',sans-serif;
+    color:var(--coral);
+    margin-bottom:8px;
+    font-size:18px;
+  }
+  .doggo-popup p{margin-bottom:12px;color:var(--dark)}
+  .doggo-popup .links{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .doggo-popup a{
+    display:block;
+    text-align:center;
+    padding:8px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:13px;
+    transition:all .2s;
+  }
+  .link-walk{background:var(--mint);color:var(--brown)}
+  .link-feed{background:var(--yellow);color:var(--brown)}
+  .doggo-popup a:hover{transform:scale(1.05)}
+
+  .carousel-hint{
+    text-align:center;
+    font-family:'Caveat',cursive;
+    font-size:22px;
+    color:var(--pink);
+    margin-top:20px;
+  }
+
+  /* ===== ЛУЧШИЙ ДРУГ ===== */
+  .bestfriend{
+    background:linear-gradient(135deg, #ffe4ec 0%, #fff0dc 100%);
+    border-radius:40px;
+    padding:50px 40px;
+    border:4px solid var(--pink);
+    text-align:center;
+  }
+  .bestfriend .big-heart{
+    font-size:80px;
+    margin-bottom:15px;
+    display:inline-block;
+    animation:pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.15)}
+  }
+  .bestfriend p{
+    max-width:750px;
+    margin:0 auto 15px;
+    font-size:17px;
+  }
+  .perks{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-top:30px;
+  }
+  .perk{
+    background:white;
+    padding:25px 20px;
+    border-radius:20px;
+    border:3px dashed var(--coral);
+  }
+  .perk .icon{font-size:40px;margin-bottom:10px}
+  .perk h4{
+    font-family:'Fredoka',sans-serif;
+    color:var(--coral);
+    margin-bottom:8px;
+  }
+
+  /* ===== ПАСПОРТ ===== */
+  .passport{
+    max-width:700px;
+    margin:0 auto;
+    background:linear-gradient(135deg, #fff6e6 0%, #ffd9b8 100%);
+    border-radius:20px;
+    padding:40px;
+    border:3px solid var(--brown);
+    box-shadow:
+      inset 0 0 0 8px var(--cream),
+      inset 0 0 0 10px var(--brown),
+      0 15px 40px rgba(107,68,35,0.2);
+    position:relative;
+  }
+  .passport::before{
+    content:"🐕";
+    position:absolute;
+    top:20px;
+    right:25px;
+    font-size:50px;
+    opacity:0.3;
+  }
+  .passport h3{
+    font-family:'Fredoka',sans-serif;
+    color:var(--brown);
+    text-align:center;
+    font-size:28px;
+    margin-bottom:5px;
+  }
+  .passport .pass-sub{
+    text-align:center;
+    font-family:'Caveat',cursive;
+    font-size:22px;
+    color:var(--pink);
+    margin-bottom:25px;
+  }
+  .stamps{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:15px;
+    margin-top:25px;
+  }
+  .stamp{
+    aspect-ratio:1;
+    border:3px dashed var(--coral);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    background:rgba(255,255,255,0.5);
+    position:relative;
+    transition:all .3s;
+  }
+  .stamp.filled{
+    background:var(--yellow);
+    border-style:solid;
+    animation:stampIn .5s ease-out;
+  }
+  .stamp.filled::after{
+    content:"✓";
+    position:absolute;
+    bottom:5px;
+    right:10px;
+    color:var(--brown);
+    font-weight:900;
+    font-size:20px;
+  }
+  @keyframes stampIn{
+    0%{transform:scale(2) rotate(-30deg);opacity:0}
+    100%{transform:scale(1) rotate(0);opacity:1}
+  }
+  .stamp-label{
+    text-align:center;
+    font-family:'Caveat',cursive;
+    font-size:18px;
+    color:var(--brown);
+    margin-top:5px;
+  }
+  .passport-note{
+    margin-top:25px;
+    padding:15px;
+    background:white;
+    border-radius:15px;
+    text-align:center;
+    font-family:'Comfortaa',sans-serif;
+    color:var(--brown);
+    font-size:15px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer{
+    background:var(--brown);
+    color:var(--cream);
+    padding:40px 30px;
+    text-align:center;
+    margin-top:50px;
+  }
+  footer .logo{justify-content:center;color:var(--yellow);margin-bottom:15px}
+  footer p{font-size:14px;opacity:0.9;margin:5px 0}
+  footer .socials{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin:15px 0;
+  }
+  footer .socials a{
+    width:40px;
+    height:40px;
+    background:var(--coral);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    font-size:18px;
+    transition:all .2s;
+  }
+  footer .socials a:hover{
+    background:var(--yellow);
+    transform:translateY(-3px) rotate(10deg);
+  }
+
+  @media (max-width:600px){
+    .carousel{height:400px}
+    .doggo-popup{width:200px;font-size:12px}
+    section{padding:50px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-pattern"></div>
+
+<header>
+  <div class="logo"><span class="paw">🐾</span> Лапки ВШЭ</div>
+  <nav>
+    <ul>
+      <li><a href="#map-section">Карта</a></li>
+      <li><a href="#about">Кто мы</a></li>
+      <li><a href="#trips">Выезды</a></li>
+      <li><a href="#feed">Кормушка</a></li>
+      <li><a href="#bestfriend">Лучший друг</a></li>
+      <li><a href="#passport">Паспорт</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ===== HERO + КАРТА ===== -->
+<div class="hero" id="map-section">
+  <h1>Найди хвостатого друга в Москве 🐶</h1>
+  <p class="sub">наведи на лапку — узнай, кому нужна твоя помощь</p>
+  <div id="map"></div>
+</div>
+
+<!-- ===== КТО МЫ ===== -->
+<section id="about">
+  <h2 class="section-title">Кто мы?</h2>
+  <p class="section-sub">немного о нашей банде</p>
+  <div class="about">
+    <p>
+      Привет! Мы — <span class="highlight">студенты Вышки</span>, которые однажды поняли,
+      что лекции — это круто, но гулять с собаками в приютах ещё круче.
+    </p>
+    <p>
+      Наша команда появилась в 2024 году на первом курсе. Тогда мы просто хотели
+      помочь ближайшему приюту вывезти собак на прогулку. А теперь нас уже больше
+      <span class="highlight">50 волонтёров</span>, и мы ездим в приюты Москвы и МО
+      каждые выходные.
+    </p>
+    <p>
+      Мы верим, что <span class="highlight">зооволонтёрство</span> — это не только
+      помощь хвостикам, но и лучшие друзья, свежий воздух и море эндорфинов.
+      Присоединяйся — у нас тепло, весело и очень пушисто!
+    </p>
+    <div style="text-align:center">
+      <a href="#feed" class="btn">Стать волонтёром 🐕</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== НАШИ ВЫЕЗДЫ ===== -->
+<section id="trips">
+  <h2 class="section-title">Наши выезды</h2>
+  <p class="section-sub">смотри, куда мы едем в этот месяц</p>
+
+  <div class="calendar-wrap">
+    <div class="calendar" id="calendarNov"></div>
+    <div class="trip-info">
+      <h4>🚐 Ближайшие поездки</h4>
+      <div class="trip-item">
+        <div class="date">📅 30 ноября (воскресенье)</div>
+        <div>Приют «Добрый хвост», Новая Москва. Везём корм, играем с собаками, фоткаемся.</div>
+      </div>
+      <div class="trip-item">
+        <div class="date">📅 15 декабря (понедельник)</div>
+        <div>Приют «Лапа помощи», МО. Большая уборка вольеров + новогодняя фотосессия для пёсиков!</div>
+      </div>
+      <div class="trip-item">
+        <div class="date">📅 28 декабря (воскресенье)</div>
+        <div>Ёлка для хвостатых в «Четыре лапы». Приноси старые свитера — утеплим ребят к НГ!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== КОРМУШКА ===== -->
+<section id="feed">
+  <h2 class="section-title">Кормушка 🍖</h2>
+  <p class="section-sub">угости конкретного пёсика — он будет знать тебя в лицо</p>
+
+  <div class="carousel-container">
+    <div class="carousel">
+      <div class="carousel-scene">
+        <div class="park-bg"></div>
+
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+
+        <div class="butterfly">🦋</div>
+
+        <!-- Горка -->
+        <div class="slide">
+          <div class="slide-ramp"></div>
+          <div class="slide-steps"></div>
+        </div>
+
+        <!-- Собачки -->
+        <div class="doggo d1">
+          <svg width="110" height="90" viewBox="0 0 110 90">
+            <ellipse cx="55" cy="60" rx="35" ry="22" fill="#d4a574"/>
+            <circle cx="30" cy="45" r="20" fill="#d4a574"/>
+            <ellipse cx="20" cy="30" rx="7" ry="12" fill="#b8895a" transform="rotate(-20 20 30)"/>
+            <ellipse cx="40" cy="30" rx="7" ry="12" fill="#b8895a" transform="rotate(20 40 30)"/>
+            <circle cx="25" cy="45" r="2.5" fill="#000"/>
+            <circle cx="35" cy="45" r="2.5" fill="#000"/>
+            <ellipse cx="30" cy="52" rx="3" ry="2" fill="#000"/>
+            <path d="M 25 56 Q 30 60 35 56" stroke="#000" stroke-width="1.5" fill="none"/>
+            <rect x="35" y="75" width="6" height="12" rx="2" fill="#d4a574"/>
+            <rect x="50" y="75" width="6" height="12" rx="2" fill="#d4a574"/>
+            <rect x="65" y="75" width="6" height="12" rx="2" fill="#d4a574"/>
+            <rect x="75" y="75" width="6" height="12" rx="2" fill="#d4a574"/>
+            <path d="M 85 55 Q 95 50 92 65" stroke="#d4a574" stroke-width="6" fill="none" stroke-linecap="round"/>
+          </svg>
+          <div class="doggo-popup">
+            <h4>Привет, я Рекс! 🦴</h4>
+            <p>Я очень люблю гулять и после этого сразу бегу кушать вкусный корм! А ещё я умею давать лапу и приносить палку.</p>
+            <div class="links">
+              <a href="#map-section" class="link-walk">🐕 Погулять со мной</a>
+              <a href="#" class="link-feed" onclick="alert('Здесь будет переход на оплату корма для Рекса');return false;">🍖 Угостить кормом</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="doggo d2">
+          <svg width="90" height="80" viewBox="0 0 90 80">
+            <ellipse cx="45" cy="55" rx="30" ry="18" fill="#fff"/>
+            <circle cx="25" cy="40" r="18" fill="#fff"/>
+            <ellipse cx="15" cy="28" rx="6" ry="10" fill="#333" transform="rotate(-20 15 28)"/>
+            <ellipse cx="33" cy="28" rx="6" ry="10" fill="#333" transform="rotate(20 33 28)"/>
+            <circle cx="20" cy="40" r="2" fill="#000"/>
+            <circle cx="30" cy="40" r="2" fill="#000"/>
+            <ellipse cx="25" cy="47" rx="2.5" ry="1.8" fill="#000"/>
+            <circle cx="18" cy="35" r="4" fill="#ffb6c1" opacity="0.5"/>
+            <circle cx="32" cy="35" r="4" fill="#ffb6c1" opacity="0.5"/>
+            <rect x="30" y="68" width="5" height="10" rx="2" fill="#fff"/>
+            <rect x="42" y="68" width="5" height="10" rx="2" fill="#fff"/>
+            <rect x="54" y="68" width="5" height="10" rx="2" fill="#fff"/>
+            <rect x="62" y="68" width="5" height="10" rx="2" fill="#fff"/>
+          </svg>
+          <div class="doggo-popup">
+            <h4>Я Буся! 🎀</h4>
+            <p>Я маленькая, но очень смелая. Обожаю кататься с горки и знакомиться с новыми людьми. Приезжай — я тебя узнаю по запаху!</p>
+            <div class="links">
+              <a href="#map-section" class="link-walk">🐕 Погулять со мной</a>
+              <a href="#" class="link-feed" onclick="alert('Оплата корма для Буси');return false;">🍖 Угостить кормом</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="doggo d3">
+          <svg width="100" height="85" viewBox="0 0 100 85">
+            <ellipse cx="50" cy="58" rx="32" ry="20" fill="#8b5a2b"/>
+            <circle cx="28" cy="42" r="19" fill="#8b5a2b"/>
+            <ellipse cx="18" cy="28" rx="7" ry="12" fill="#5d3a1a" transform="rotate(-15 18 28)"/>
+            <ellipse cx="38" cy="28" rx="7" ry="12" fill="#5d3a1a" transform="rotate(15 38 28)"/>
+            <circle cx="23" cy="42" r="2.5" fill="#000"/>
+            <circle cx="33" cy="42" r="2.5" fill="#000"/>
+            <ellipse cx="28" cy="50" rx="3" ry="2" fill="#000"/>
+            <path d="M 23 54 Q 28 58 33 54" stroke="#fff" stroke-width="1.5" fill="none"/>
+            <rect x="33" y="72" width="6" height="11" rx="2" fill="#8b5a2b"/>
+            <rect x="47" y="72" width="6" height="11" rx="2" fill="#8b5a2b"/>
+            <rect x="60" y="72" width="6" height="11" rx="2" fill="#8b5a2b"/>
+            <rect x="70" y="72" width="6" height="11" rx="2" fill="#8b5a2b"/>
+          </svg>
+          <div class="doggo-popup">
+            <h4>Я Шарик! 🎾</h4>
+            <p>Я бегаю за бабочками и мечтаю о своём человеке. Если угостишь меня вкусняшкой — я твой друг навсегда!</p>
+            <div class="links">
+              <a href="#map-section" class="link-walk">🐕 Погулять со мной</a>
+              <a href="#" class="link-feed" onclick="alert('Оплата корма для Шарика');return false;">🍖 Угостить кормом</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="doggo d4">
+          <svg width="80" height="70" viewBox="0 0 80 70">
+            <ellipse cx="40" cy="48" rx="25" ry="15" fill="#c9a876"/>
+            <circle cx="22" cy="35" r="15" fill="#c9a876"/>
+            <ellipse cx="14" cy="24" rx="5" ry="9" fill="#a08050" transform="rotate(-20 14 24)"/>
+            <ellipse cx="30" cy="24" rx="5" ry="9" fill="#a08050" transform="rotate(20 30 24)"/>
+            <circle cx="18" cy="35" r="2" fill="#000"/>
+            <circle cx="26" cy="35" r="2" fill="#000"/>
+            <ellipse cx="22" cy="41" rx="2" ry="1.5" fill="#000"/>
+            <rect x="26" y="58" width="5" height="9" rx="2" fill="#c9a876"/>
+            <rect x="36" y="58" width="5" height="9" rx="2" fill="#c9a876"/>
+            <rect x="46" y="58" width="5" height="9" rx="2" fill="#c9a876"/>
+            <rect x="54" y="58" width="5" height="9" rx="2" fill="#c9a876"/>
+          </svg>
+          <div class="doggo-popup">
+            <h4>Я Тузик! 🌟</h4>
+            <p>Я самый ласковый в приюте. Люблю, когда чешут за ушком и рассказывают сказки. Приходи — я заслушаюсь!</p>
+            <div class="links">
+              <a href="#map-section" class="link-walk">🐕 Погулять со мной</a>
+              <a href="#" class="link-feed" onclick="alert('Оплата корма для Тузика');return false;">🍖 Угостить кормом</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="doggo d5">
+          <svg width="95" height="80" viewBox="0 0 95 80">
+            <ellipse cx="47" cy="55" rx="30" ry="18" fill="#444"/>
+            <circle cx="25" cy="40" r="17" fill="#444"/>
+            <ellipse cx="16" cy="28" rx="6" ry="10" fill="#222" transform="rotate(-20 16 28)"/>
+            <ellipse cx="34" cy="28" rx="6" ry="10" fill="#222" transform="rotate(20 34 28)"/>
+            <circle cx="20" cy="40" r="2.5" fill="#fff"/>
+            <circle cx="30" cy="40" r="2.5" fill="#fff"/>
+            <circle cx="20" cy="40" r="1.2" fill="#000"/>
+            <circle cx="30" cy="40" r="1.2" fill="#000"/>
+            <ellipse cx="25" cy="47" rx="2.5" ry="1.8" fill="#000"/>
+            <rect x="30" y="68" width="5" height="10" rx="2" fill="#444"/>
+            <rect x="42" y="68" width="5" height="10" rx="2" fill="#444"/>
+            <rect x="54" y="68" width="5" height="10" rx="2" fill="#444"/>
+            <rect x="62" y="68" width="5" height="10" rx="2" fill="#444"/>
+          </svg>
+          <div class="doggo-popup">
+            <h4>Я Ночка! 🌙</h4>
+            <p>Меня нашли ночью под дождём. Теперь я счастливая, но всё ещё ищу свою семью. Может, это будешь ты?</p>
+            <div class="links">
+              <a href="#map-section" class="link-walk">🐕 Погулять со мной</a>
+              <a href="#" class="link-feed" onclick="alert('Оплата корма для Ночки');return false;">🍖 Угостить кормом</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <p class="carousel-hint">✨ наведи на любого пёсика — он расскажет о себе ✨</p>
+  </div>
+</section>
+
+<!-- ===== ЛУЧШИЙ ДРУГ ===== -->
+<section id="bestfriend">
+  <h2 class="section-title">Стать лучшим другом 💛</h2>
+  <p class="section-sub">это больше, чем просто волонтёр</p>
+
+  <div class="bestfriend">
+    <div class="big-heart">💖</div>
+    <p>
+      <strong>Лучший друг</strong> — это куратор, который берёт собаку на попечение
+      или постоянно навещает приют. Это тот, кого хвостик узнаёт издалека и
+      бежит встречать, виляя хвостом так, что кажется, он вот-вот взлетит.
+    </p>
+    <p>
+      В нашей организации мы ввели классную систему, которая поможет нам и вам
+      <span style="background:var(--yellow);padding:2px 8px;border-radius:10px;font-weight:700">доверять друг другу и быть ближе</span>.
+      Никакой бюрократии — только любовь, ответственность и поддержка от нашей команды.
+    </p>
+
+    <div class="perks">
+      <div class="perk">
+        <div class="icon">🏠</div>
+        <h4>Временный дом</h4>
+        <p>Возьми пёсика на передержку, пока он ждёт свою семью</p>
+      </div>
+      <div class="perk">
+        <div class="icon">📞</div>
+        <h4>Поддержка 24/7</h4>
+        <p>Наши ветеринары и зоопсихологи всегда на связи</p>
+      </div>
+      <div class="perk">
+        <div class="icon">🎓</div>
+        <h4>Обучение</h4>
+        <p>Научим понимать язык собак и работать с их характером</p>
+      </div>
+      <div class="perk">
+        <div class="icon">👥</div>
+        <h4>Комьюнити</h4>
+        <p>Тусовки, пикники и встречи с такими же сумасшедшими любителями хвостиков</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ПАСПОРТ ===== -->
+<section id="passport">
+  <h2 class="section-title">Паспорт доброго зоовышкинца 📘</h2>
+  <p class="section-sub">что это и зачем?</p>
+
+  <div class="passport">
+    <h3>🐾 ПАСПОРТ ДОБРОГО ЗООВЫШКИНЦА</h3>
+    <div class="pass-sub">твоя личная книжка добрых дел</div>
+
+    <p style="text-align:center;font-size:16px">
+      Каждый выезд в приют — это <strong>штампик</strong> в твой паспорт.
+      Чем больше штампов — тем ближе ты к званию <em>«Лучший друг»</em>!
+    </p>
+
+    <div class="stamps">
+      <div>
+        <div class="stamp filled">🐕</div>
+        <div class="stamp-label">1 выезд</div>
+      </div>
+      <div>
+        <div class="stamp filled">🦴</div>
+        <div class="stamp-label">3 выезда</div>
+      </div>
+      <div>
+        <div class="stamp filled">💛</div>
+        <div class="stamp-label">5 выездов</div>
+      </div>
+      <div>
+        <div class="stamp">🏆</div>
+        <div class="stamp-label">10 выездов</div>
+      </div>
+      <div>
+        <div class="stamp">⭐</div>
+        <div class="stamp-label">Лучший друг</div>
+      </div>
+    </div>
+
+    <div class="passport-note">
+      🎯 Когда у тебя наберётся много штампов — приходи к нам,
+      и мы вместе обсудим, как стать нашим <strong>лучшим другом</strong>!
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo"><span class="paw">🐾</span> Лапки ВШЭ</div>
+  <p>Студенческое зооволонтёрское движение</p>
+  <div class="socials">
+    <a href="#" title="Telegram">✈️</a>
+    <a href="#" title="VK">💬</a>
+    <a href="#" title="Email">✉️</a>
+    <a href="#" title="Instagram">📷</a>
+  </div>
+  <p>📍 Москва и МО · 📧 lapki@hse.ru · 📱 +7 (999) 123-45-67</p>
+  <p style="margin-top:15px;opacity:0.6">© 2026 Лапки ВШЭ. Сделано с любовью к хвостикам 🐾</p>
+</footer>
+
+<script>
+  // ===== КАРТА =====
+  const map = L.map('map').setView([55.751244, 37.618423], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'© OpenStreetMap',
+    maxZoom:18
+  }).addTo(map);
+
+  // SVG лапки для маркера
+  const pawSvg = (color) => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="65" rx="22" ry="18" fill="${color}"/>
+      <circle cx="28" cy="45" r="10" fill="${color}"/>
+      <circle cx="72" cy="45" r="10" fill="${color}"/>
+      <circle cx="20" cy="65" r="8" fill="${color}"/>
+      <circle cx="80" cy="65" r="8" fill="${color}"/>
+    </svg>`;
+
+  const shelters = [
+    {
+      name:"Добрый хвост",
+      lat:55.6225, lng:37.5800,
+      addr:"г. Москва, ул. Южная, 15",
+      img:"https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200&h=200&fit=crop",
+      phone:"+7 (495) 111-22-33",
+      help:"Старая одежда, корм, выгул",
+      color:"#ff7aa2"
+    },
+    {
+      name:"Лапа помощи",
+      lat:55.8500, lng:37.4500,
+      addr:"МО, г. Химки, Ленинградское ш., 42",
+      img:"https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=200&h=200&fit=crop",
+      phone:"+7 (495) 222-33-44",
+      help:"Корм, лекарства, перевозка",
+      color:"#ff8a65"
+    },
+    {
+      name:"Четыре лапы",
+      lat:55.7450, lng:37.5800,
+      addr:"г. Москва, ул. Арбат, 28",
+      img:"https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=200&h=200&fit=crop",
+      phone:"+7 (495) 333-44-55",
+      help:"Игрушки, выгул, фотосессии",
+      color:"#ffd966"
+    },
+    {
+      name:"Верный друг",
+      lat:55.7400, lng:37.5300,
+      addr:"г. Москва, Кутузовский пр-т, 10",
+      img:"https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=200&h=200&fit=crop",
+      phone:"+7 (495) 444-55-66",
+      help:"Стирка подстилок, социализация",
+      color:"#9eddbd"
+    },
+    {
+      name:"Хвостатый рай",
+      lat:55.7800, lng:37.6200,
+      addr:"г. Москва, ул. Тверская, 55",
+      img:"https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=200&h=200&fit=crop",
+      phone:"+7 (495) 555-66-77",
+      help:"Корм, выгул, дрессировка",
+      color:"#a8d8ea"
+    },
+    {
+      name:"Мохнатый друг",
+      lat:55.8200, lng:37.6300,
+      addr:"г. Москва, проспект Мира, 78",
+      img:"https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=200&fit=crop",
+      phone:"+7 (495) 666-77-88",
+      help:"Утеплённые будки, корм, руки",
+      color:"#ff7aa2"
+    },
+    {
+      name:"Пушистый ковчег",
+      lat:55.6900, lng:37.7100,
+      addr:"г. Москва, ул. Перовская, 33",
+      img:"https://images.unsplash.com/photo-1587764379873-97837921fd44?w=200&h=200&fit=crop",
+      phone:"+7 (495) 777-88-99",
+      help:"Кошачий корм, стерилизация",
+      color:"#ffd966"
+    },
+    {
+      name:"Зooспас",
+      lat:55.9000, lng:37.5000,
+      addr:"МО, г. Долгопрудный, Лихачёвский пр-т, 12",
+      img:"https://images.unsplash.com/photo-1591946614720-90a587da4a66?w=200&h=200&fit=crop",
+      phone:"+7 (495) 888-99-00",
+      help:"Волонтёры-водители, корм",
+      color:"#ff8a65"
+    }
+  ];
+
+  shelters.forEach(s => {
+    const icon = L.divIcon({
+      className:'paw-marker',
+      html:pawSvg(s.color),
+      iconSize:[42,42],
+      iconAnchor:[21,21]
+    });
+    const marker = L.marker([s.lat, s.lng], {icon}).addTo(map);
+    marker.bindPopup(`
+      <div class="shelter-card">
+        <img src="${s.img}" alt="${s.name}" onerror="this.src='https://via.placeholder.com/90?text=🐶'">
+        <div class="shelter-info">
+          <h3>${s.name}</h3>
+          <p>📍 ${s.addr}</p>
+          <p>📞 ${s.phone}</p>
+          <div class="help">🤝 Чем помочь: ${s.help}</div>
+        </div>
+      </div>
+    `, {closeButton:true, maxWidth:300});
+  });
+
+  // ===== КАЛЕНДАРЬ =====
+  const today = new Date(2026, 10, 22); // 22 ноября 2026
+  const trips = {
+    "2026-11-30":"Поездка в «Добрый хвост» 🐕",
+    "2026-12-15":"Поездка в «Лапа помощи» 🐾",
+    "2026-12-28":"Ёлка для хвостатых 🎄"
+  };
+
+  function renderCalendar(year, month, containerId){
+    const container = document.getElementById(containerId);
+    const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month+1, 0);
+    // Пн=0 ... Вс=6
+    let startWeekday = firstDay.getDay() - 1;
+    if(startWeekday < 0) startWeekday = 6;
+
+    let html = `
+      <div class="calendar-header">
+        <button class="cal-nav" onclick="changeMonth('${containerId}',-1)">‹</button>
+        <h3>${monthNames[month]} ${year}</h3>
+        <button class="cal-nav" onclick="changeMonth('${containerId}',1)">›</button>
+      </div>
+      <div class="weekdays">
+        <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div style="color:var(--pink)">Вс</div>
+      </div>
+      <div class="days">
+    `;
+
+    // Дни предыдущего месяца
+    const prevLast = new Date(year, month, 0).getDate();
+    for(let i=startWeekday-1; i>=0; i--){
+      html += `<div class="other">${prevLast-i}</div>`;
+    }
+
+    // Дни текущего месяца
+    for(let d=1; d<=lastDay.getDate(); d++){
+      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      let classes = [];
+      if(year===today.getFullYear() && month===today.getMonth() && d===today.getDate()) classes.push('today');
+      if(trips[dateStr]) classes.push('trip');
+      const title = trips[dateStr] ? `title="${trips[dateStr]}"` : '';
+      html += `<div class="${classes.join(' ')}" ${title}>${d}</div>`;
+    }
+
+    // Дни следующего месяца
+    const totalCells = startWeekday + lastDay.getDate();
+    const remaining = (7 - (totalCells % 7)) % 7;
+    for(let i=1; i<=remaining; i++){
+      html += `<div class="other">${i}</div>`;
+    }
+
+    html += `</div>`;
+    container.dataset.year = year;
+    container.dataset.month = month;
+    container.innerHTML = html;
+  }
+
+  window.changeMonth = function(id, delta){
+    const c = document.getElementById(id);
+    let y = parseInt(c.dataset.year);
+    let m = parseInt(c.dataset.month) + delta;
+    if(m<0){m=11;y--}
+    if(m>11){m=0;y++}
+    renderCalendar(y, m, id);
+  };
+
+  renderCalendar(2026, 10, 'calendarNov'); // ноябрь 2026
+</script>
+
+</body>
+</html>
