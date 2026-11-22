@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#753454">
+  <title>Лапки Вышки — вместе помогаем животным</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="paw-pattern" aria-hidden="true"></div>
+  <div id="paw-cursor" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Лапки Вышки — на главную"><span class="brand-paw">🐾</span><span>лапки <b>вышки</b><small>добро начинается с тебя</small></span></a>
+    <button class="menu-toggle" aria-label="Открыть меню">☰</button>
+    <nav class="main-nav">
+      <a href="#map">карта</a><a href="#about">кто мы?</a><a href="#volunteer">стать волонтёром</a>
+      <a href="#best-friend">стать лучшим другом</a><a href="#trips">поехали вместе!</a><a href="#instapaws">инсталапки</a><a href="#learn">образовательное</a>
+    </nav>
+    <a class="header-cta" href="#volunteer">помочь лапкам <span>♡</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero section-wrap">
+      <div class="hero-copy">
+        <div class="eyebrow"><span>🐾</span> зооволонтёрство по-вышкински</div>
+        <h1>Большие дела<br>начинаются с <em>маленьких лап.</em></h1>
+        <p>Объединяем студентов, выпускников и сотрудников Вышки, чтобы помогать животным — заботливо, регулярно и вместе.</p>
+        <div class="hero-actions"><a class="btn btn-primary" href="#volunteer">хочу помогать <span>♡</span></a><a class="text-link" href="#map">найти приют на карте <span>↗</span></a></div>
+        <div class="hero-note"><span class="note-icon">✦</span><span>Неважно, сколько у тебя свободного времени.<br>Для добрых дел найдётся свой формат.</span></div>
+      </div>
+      <div class="hero-art">
+        <div class="hero-blob"></div>
+        <div class="hero-sticker sticker-one">ты + мы<br>= добро!</div>
+        <img class="hero-dog" src="assets/dog-avatar.jpg" alt="Собака из команды Лапки Вышки">
+        <div class="hero-caption"><b>Знакомься,</b><br>наши хвостатые друзья ждут тебя!</div>
+        <span class="floating-heart">♡</span><span class="floating-star">✳</span>
+      </div>
+      <div class="hero-bottom"><span>листай, здесь много любви</span><span>↓</span></div>
+    </section>
+
+    <section id="map" class="section-wrap section-block">
+      <div class="section-heading"><div><div class="eyebrow">найдём дорогу к добру</div><h2>Карта <em>лапок</em></h2></div><p>Выбирай приют, смотри, какая помощь нужна, и планируй свой первый визит.</p></div>
+      <div class="map-layout">
+        <aside class="filters panel">
+          <h3>Найди свой приют</h3><p class="muted">Отфильтруй места по тому, как хочешь помогать.</p>
+          <label class="filter-label">Способ помощи</label>
+          <div id="help-filters" class="filter-chips">
+            <button class="chip active" data-help="all">всё</button><button class="chip" data-help="walks">прогулки</button><button class="chip" data-help="donate">донат</button><button class="chip" data-help="care">уход</button><button class="chip" data-help="transport">транспорт</button><button class="chip" data-help="guardian">опекунство</button><button class="chip" data-help="photo">съёмка</button><button class="chip" data-help="education">обучение</button>
+          </div>
+          <label class="filter-label" for="animal-filter">Кого можно встретить?</label>
+          <select id="animal-filter"><option value="all">Всех хвостиков</option><option value="dogs">Собак</option><option value="cats">Кошек</option></select>
+          <label class="filter-label" for="shelter-filter">Тип приюта</label>
+          <select id="shelter-filter"><option value="all">Любой</option><option value="municipal">Муниципальный</option><option value="private">Частный</option></select>
+          <div class="map-legend"><span><i class="legend-dot blue"></i> муниципальный</span><span><i class="legend-dot orange"></i> частный</span></div>
+          <button class="reset-btn" id="reset-filters">сбросить фильтры ↺</button>
+          <div class="map-tip">💡 Наведи курсор на лапку или нажми на неё, чтобы узнать больше.</div>
+        </aside>
+        <div class="map-area">
+          <div id="shelter-map" role="application" aria-label="Интерактивная карта приютов Москвы и Московской области"></div>
+          <div class="map-status" id="map-status">На карте отмечено 6 приютов</div>
+        </div>
+      </div>
+      <p class="tiny-note">Координаты меток в этой версии демонстрационные. Перед публикацией проверь точное расположение каждого приюта. Для Яндекс.Карт добавь API-ключ в <code>config.js</code>.</p>
+    </section>
+
+    <section id="about" class="about-section">
+      <div class="section-wrap about-grid">
+        <div class="about-photo-wrap"><img src="assets/dog-avatar.jpg" alt="Наш хвостатый друг"><span class="photo-tag">команда добра ♡</span><div class="photo-doodle">лапки<br>рядом!</div></div>
+        <div class="about-copy"><div class="eyebrow">немного о нас</div><h2>Кто мы — <em>Лапки Вышки?</em></h2>
+          <p>Мы — команда зооволонтёров Вышки. Наша цель — сделать помощь приютам простой и понятной: чтобы каждый студент, выпускник или сотрудник мог легко присоединиться и почувствовать, что его вклад действительно важен.</p>
+          <p>Мы регулярно организуем выезды в приюты. Это не разовые акции, а системная работа, в которой каждый может выбрать комфортный формат участия. Можно ездить с нами, а можно отправляться самостоятельно — достаточно выбрать удобный приют на нашей интерактивной карте.</p>
+          <p>Наш проект — это тёплое пространство, где можно познакомиться с единомышленниками и вместе делать мир добрее. Самые активные волонтёры получают <b>«Паспорт зооволонтёра Вышки»</b>: собирай штампики и получай памятные сувениры!</p>
+          <p>В первый раз? Не переживай. Мы расскажем о правилах, подготовим к визиту и будем рядом на каждом этапе.</p>
+          <a class="btn btn-primary" href="#volunteer">присоединиться к нам ♡</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="volunteer" class="section-wrap section-block">
+      <div class="center-heading"><div class="eyebrow">у каждого доброго дела свой маршрут</div><h2>Стать <em>волонтёром</em></h2><p>Хочешь помогать животным и стать частью нашей команды? Мы будем очень рады познакомиться!</p><p>Выбирай формат, который тебе ближе:</p></div>
+      <div class="paths">
+        <article class="path-card group-path"><div class="path-heart">♡</div><div class="path-number">01 / ВМЕСТЕ</div><div class="big-paw">🐾</div><h3>Групповые выезды</h3><p>Организуем поездки в приюты в тёплой компании. Познакомишься с командой, узнаешь много нового и поможешь хвостикам — а мы всё подскажем и поддержим.</p><a class="paw-button" href="https://forms.yandex.ru/u/6b02ec9e974ab297b73b72cc" target="_blank" rel="noopener"><span>🐾</span> присоединиться</a></article>
+        <div class="path-connector"><span>или</span><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M8 20 C65 5 30 80 110 75 M8 125 C65 140 30 65 110 75" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 6"/><path d="M100 67 L111 75 L100 83" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="connector-heart">♡</span></div>
+        <article class="path-card solo-path"><div class="path-heart">♡</div><div class="path-number">02 / САМОСТОЯТЕЛЬНО</div><div class="big-paw">🐾</div><h3>Одиночный ретрит</h3><p>Хочется немного тишины и времени наедине с собой? Выбери приют рядом с домом или на природе и отправляйся знакомиться с его обитателями самостоятельно.</p><a class="paw-button" href="#map"><span>🐾</span> выбрать приют</a></article>
+      </div>
+    </section>
+
+    <section class="animal-playground">
+      <div class="section-wrap section-block">
+        <div class="section-heading"><div><div class="eyebrow">знакомься, это наши звёзды</div><h2>Хвостатая <em>команда</em></h2></div><p>Наведи курсор на героя или нажми на него — у каждого есть маленькая история!</p></div>
+        <div class="playground">
+          <div class="playground-sky"><span class="cloud cloud-a">☁</span><span class="cloud cloud-b">☁</span><span class="sun">☼</span><div class="playground-sign">ДОБРО<br>ПОЖАЛОВАТЬ!</div></div>
+          <div class="pet-stage" id="pet-stage">
+            <button class="pet-avatar photo-pet selected" data-pet="rex" aria-label="Рекс"><img src="assets/dog-avatar.jpg" alt="Рекс"><span>Рекс</span></button>
+            <button class="pet-avatar" data-pet="mila" aria-label="Мила, собака"><span class="pet-drawing dog-drawing">🐕</span><span>Мила</span></button>
+            <button class="pet-avatar" data-pet="dach" aria-label="Такса Бублик"><span class="pet-drawing dach-drawing">🐶</span><span>Бублик</span></button>
+            <button class="pet-avatar" data-pet="black" aria-label="Чёрный пёс Граф"><span class="pet-drawing black-drawing">🐕‍🦺</span><span>Граф</span></button>
+            <button class="pet-avatar" data-pet="cat" aria-label="Котёнок Плюша"><span class="pet-drawing cat-drawing">🐈</span><span>Плюша</span></button>
+            <button class="pet-avatar" data-pet="kit" aria-label="Котёнок Пончик"><span class="pet-drawing kitten-drawing">🐈‍⬛</span><span>Пончик</span></button>
+          </div>
+          <div class="pet-speech" id="pet-speech"><span class="speech-label">говорит хвостик</span><h3>Привет, я Рекс!</h3><p>Я очень люблю гулять, а после прогулки всегда рад вкусному корму. Составишь мне компанию?</p><div class="pet-links"><a href="#map">погулять со мной ↗</a><a href="#map">угостить вкусняшкой ↗</a></div></div>
+          <div class="playground-grass"></div>
+        </div>
+        <p class="tiny-note">Имена и истории животных здесь демонстрационные. Заменим их на анкеты ваших подопечных, когда вы пришлёте фотографии и ссылки.</p>
+      </div>
+    </section>
+
+    <section id="best-friend" class="section-wrap section-block best-friend">
+      <div class="friend-copy"><div class="eyebrow">особенная дружба</div><h2>Стать <em>лучшим другом</em></h2>
+        <p>Ты ответственный, умеешь бережно обращаться с животными и очень хочешь завести питомца, но пока не можешь? У нас есть идея: стань для кого-то <b>лучшим другом</b>!</p>
+        <p>Друзья не бросают друг друга. Навещай своего подопечного, проводи с ним время, дари внимание и, конечно, разрешённые приютом вкусняшки ♡</p>
+        <p>Чтобы нам всем было комфортно и спокойно, мы придумали систему знакомства и доверия — <b>Паспорт доброго зоовышкинца</b>.</p>
+        <a class="btn btn-primary" href="#map">выбрать хвостика ♡</a>
+      </div>
+      <div class="passport-card"><div class="passport-top"><span>🐾 ЛАПКИ ВЫШКИ</span><span>№ 0001</span></div><div class="passport-title">ПАСПОРТ<br><em>доброго зоовышкинца</em></div><div class="passport-stamps"><span>🐾</span><span>♡</span><span>🐾</span><span>✦</span><span>🐾</span><span>♡</span></div><p>Каждый визит — новый штампик!</p><div class="passport-bottom">ДРУЖБА • ЗАБОТА • ОТВЕТСТВЕННОСТЬ</div></div>
+      <div class="passport-explain"><h3>А что за штампики?</h3><p>После каждой поездки или встречи с подопечным ты получаешь отметку в паспорт. Собирай их, укрепляй доверие и становись ближе к своему хвостатому другу. Когда штампиков станет много, приходи к нам — вместе обсудим следующий шаг к особенной дружбе!</p></div>
+    </section>
+
+    <section id="trips" class="trips-section">
+      <div class="section-wrap section-block">
+        <div class="section-heading"><div><div class="eyebrow">планируем добро заранее</div><h2>Поехали <em>вместе!</em></h2></div><p>Отмечай даты в календаре и не пропускай наши встречи.</p></div>
+        <div class="trip-layout">
+          <div class="calendar panel"><div class="calendar-head"><button id="prev-month" aria-label="Предыдущий месяц">‹</button><h3 id="calendar-month">Ноябрь 2026</h3><button id="next-month" aria-label="Следующий месяц">›</button></div><div class="calendar-grid" id="calendar-grid"></div><div class="calendar-legend"><span><i></i> день выезда</span><small>Нажми на дату, чтобы узнать подробности</small></div></div>
+          <div class="trip-info panel" id="trip-info"><div class="trip-date">30 НОЯБРЯ · ПОНЕДЕЛЬНИК</div><h3>Наш ближайший выезд 🐾</h3><p>Собираемся вместе, чтобы провести время с хвостиками, помочь с прогулками и заботой о приюте.</p><div class="trip-detail"><span>🕒</span><span><b>Время:</b> уточняется</span></div><div class="trip-detail"><span>📍</span><span><b>Место:</b> приют объявим в наших соцсетях</span></div><div class="trip-detail"><span>💌</span><span><b>Что взять:</b> удобную одежду, хорошее настроение и желание помогать</span></div><a class="btn btn-primary" href="https://t.me/" target="_blank" rel="noopener">следить за анонсами ↗</a></div>
+        </div>
+        <div class="social-follow"><div><h3>Остаёмся на связи?</h3><p>В Telegram и ВКонтакте публикуем анонсы поездок, новости, открытый лекторий с экспертами и партнёрами.</p></div><div class="social-buttons"><a href="https://t.me/" target="_blank" rel="noopener">✈ Telegram</a><a href="https://vk.com/" target="_blank" rel="noopener">вк ВКонтакте</a></div></div>
+      </div>
+    </section>
+
+    <section id="instapaws" class="section-wrap section-block">
+      <div class="section-heading"><div><div class="eyebrow">наши новости и хвостатые истории</div><h2>Инста<em>лапки</em></h2></div><p>Маленькая лента больших добрых дел.</p></div>
+      <div class="vk-post">
+        <div class="vk-top"><div class="vk-logo">вк</div><div><b>Лапки Вышки</b><small>сообщество · только что</small></div><span class="vk-dots">•••</span></div>
+        <div class="post-image-wrap"><img src="assets/dog-post-1.jpg" alt="Собака выглядывает из-за дивана"><span class="post-sticker">привет! ♡</span></div>
+        <div class="post-content"><b>Добро пожаловать в «Лапки Вышки»! 🐾</b><p>Здесь будет всё самое важное о наших поездках, новостях, встречах и хвостатых друзьях. Будем делиться историями, рассказывать, как помочь, и показывать, сколько тепла рождается из маленьких добрых дел.</p><p>Рады, что ты с нами! До встречи на выездах ♡</p><div class="post-actions"><span>♡ 128</span><span>☻ 24 комментария</span><span>↗ Поделиться</span></div></div>
+      </div>
+    </section>
+
+    <section id="learn" class="learn-section">
+      <div class="section-wrap section-block">
+        <div class="section-heading"><div><div class="eyebrow">забота начинается со знаний</div><h2>Образова<em>тельное</em></h2></div><p>Небольшая библиотека, которая поможет лучше понимать животных и ответственную помощь.</p></div>
+        <div class="article-grid">
+          <button class="article-card" data-article="ster"><span class="article-icon">♡</span><small>ЗДОРОВЬЕ И ЗАБОТА · 5 МИН</small><h3>Стерилизация: почему это важно?</h3><p>Наведи, чтобы узнать, о чём материал →</p><span class="article-hover">Разбираемся, как стерилизация помогает снижать число бездомных животных и почему решение всегда принимается вместе с ветеринарным врачом.</span></button>
+          <button class="article-card" data-article="first"><span class="article-icon">🐾</span><small>ПЕРВЫЙ ВИЗИТ · 4 МИН</small><h3>Первый поход в приют: что взять с собой?</h3><p>Наведи, чтобы узнать, о чём материал →</p><span class="article-hover">Удобная одежда, закрытая обувь и спокойствие — собрали простой чек-лист, чтобы первое знакомство прошло комфортно.</span></button>
+          <button class="article-card" data-article="body"><span class="article-icon">✿</span><small>ЯЗЫК ЖИВОТНЫХ · 6 МИН</small><h3>Как понять, что животному комфортно?</h3><p>Наведи, чтобы узнать, о чём материал →</p><span class="article-hover">Учимся замечать сигналы тела, уважать дистанцию и не торопить знакомство. У каждого хвостика свой темп.</span></button>
+          <button class="article-card" data-article="help"><span class="article-icon">✦</span><small>ВОЛОНТЁРСТВО · 3 МИН</small><h3>Помощь приюту: не только прогулки</h3><p>Наведи, чтобы узнать, о чём материал →</p><span class="article-hover">Можно помогать транспортом, фотографиями, уходом, информационной поддержкой или регулярным донатом.</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing section-wrap"><div class="closing-paw">🐾</div><div><div class="eyebrow">каждая лапка имеет значение</div><h2>Мир становится добрее,<br>когда мы <em>вместе.</em></h2><p>До встречи на первой поездке!</p></div><a class="btn btn-light" href="#volunteer">я с вами ♡</a></section>
+  </main>
+  <footer><a class="brand footer-brand" href="#top"><span class="brand-paw">🐾</span><span>лапки <b>вышки</b><small>добро начинается с тебя</small></span></a><p>Сделано с заботой и любовью к хвостикам ♡</p><a href="#top">наверх ↑</a></footer>
+
+  <div class="modal-backdrop" id="article-modal" aria-hidden="true"><div class="article-modal panel" role="dialog" aria-modal="true"><button class="modal-close" aria-label="Закрыть">×</button><div class="eyebrow">маленькая библиотека заботы</div><h2 id="modal-title"></h2><div id="modal-body"></div><p class="modal-disclaimer">Материал носит ознакомительный характер. По вопросам здоровья и ухода за конкретным животным всегда следуй рекомендациям специалистов приюта и ветеринарного врача.</p></div></div>
+  <script src="config.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=YOUR_YANDEX_MAPS_API_KEY"></script>
+  <script src="app.js"></script>
+</body>
+</html>
