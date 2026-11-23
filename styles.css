@@ -39,3 +39,38 @@ select{font-size:12px}
 footer{font-size:12px}
 .article-modal p{font-size:15px}
 @media(max-width:760px){.main-nav a{font-size:14px}.post-content p{font-size:14px}}
+
+
+/* Requested refinements: photo carousel, paw trail, calendar and pet hover. */
+.about-gallery{position:relative;width:100%;height:450px;border:10px solid #fff;border-radius:45% 45% 22px 22px;overflow:hidden;box-shadow:var(--shadow);background:#f1eaf0}
+.about-gallery>img{display:block;width:100%;height:100%;object-fit:cover}
+.gallery-arrow{position:absolute;z-index:3;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;border-radius:50%;background:#fffdf0eF;color:var(--wine);font-size:27px;line-height:1;box-shadow:0 3px 12px #33203325;cursor:pointer}
+.gallery-prev{left:12px}.gallery-next{right:12px}
+.gallery-dots{position:absolute;z-index:3;bottom:14px;left:0;right:0;display:flex;justify-content:center;gap:8px}
+.gallery-dot{width:8px;height:8px;border:0;border-radius:50%;padding:0;background:#fff9;box-shadow:0 1px 4px #0003;cursor:pointer}
+.gallery-dot.active{width:21px;border-radius:9px;background:var(--orange)}
+.hero-paw-trail{display:inline-flex;vertical-align:middle;position:relative;width:44px;height:42px;margin-left:8px}
+.hero-paw-trail i{position:absolute;font-style:normal;font-size:18px;filter:grayscale(1);opacity:.7}
+.hero-paw-trail i:first-child{left:1px;top:2px;transform:rotate(-22deg)}
+.hero-paw-trail i:last-child{left:21px;top:17px;transform:rotate(-22deg)}
+.group-paws{display:grid;grid-template-columns:repeat(2,30px);grid-template-rows:repeat(2,27px);justify-content:center;align-content:center;gap:0 5px;font-size:25px;line-height:1}
+.group-paws span:nth-child(2),.group-paws span:nth-child(4){transform:translateY(7px) rotate(18deg)}
+.solo-paw{font-size:53px}
+.paw-marker{width:44px;height:44px;display:grid;place-items:center;filter:drop-shadow(0 2px 3px #3d293044);transition:transform .2s}
+.paw-marker:hover{transform:scale(1.18)}
+.pet-speech{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s,visibility .2s}
+.pet-speech.is-visible{opacity:1;visibility:visible}
+.calendar-day.event{background:#ead5c2;color:#75472f}
+.calendar-day.event:after{content:"";width:6px;height:6px;right:5px;top:5px;border-radius:50%;background:#9b613c}
+.calendar-day.today{background:#dceeff;color:#426b9e;box-shadow:inset 0 0 0 1px #a8cfee}
+.calendar-day.event.today{background:linear-gradient(135deg,#ead5c2 0 50%,#dceeff 50% 100%);color:#654b50}
+.calendar-day.selected{background:var(--wine);color:white}
+.calendar-day.selected.event{background:#9b613c;color:#fff}
+.calendar-day.selected.today:not(.event){background:#8dbde5;color:#fff}
+.calendar-legend .legend-items{display:flex;gap:16px;align-items:center}
+.calendar-legend .legend-items span{display:inline-flex;align-items:center}
+.calendar-legend i.legend-event{background:#9b613c}
+.calendar-legend i.legend-today{background:#a8cfee}
+.ribbon-heading em{position:relative;display:inline-block;margin-left:5px;padding:0 9px 2px;background:var(--orange);color:white;font-style:normal;border-radius:5px 12px 5px 12px;transform:rotate(-2deg);box-decoration-break:clone}
+.ribbon-heading em:after{content:"";position:absolute;right:-8px;top:5px;border-width:7px 0 7px 9px;border-style:solid;border-color:transparent transparent transparent #d77c3d}
+@media(max-width:760px){.about-gallery{height:340px}}
