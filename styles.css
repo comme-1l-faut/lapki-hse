@@ -74,3 +74,31 @@ footer{font-size:12px}
 .ribbon-heading em{position:relative;display:inline-block;margin-left:5px;padding:0 9px 2px;background:var(--orange);color:white;font-style:normal;border-radius:5px 12px 5px 12px;transform:rotate(-2deg);box-decoration-break:clone}
 .ribbon-heading em:after{content:"";position:absolute;right:-8px;top:5px;border-width:7px 0 7px 9px;border-style:solid;border-color:transparent transparent transparent #d77c3d}
 @media(max-width:760px){.about-gallery{height:340px}}
+
+
+/* Each animal has its own little speech cloud above its head. */
+.pet-speech{display:none!important}
+.pet-avatar{position:relative;z-index:2;overflow:visible}
+.pet-avatar:hover,.pet-avatar:focus-visible,.pet-avatar.bubble-visible{z-index:12}
+.pet-bubble{
+  position:absolute;left:50%;bottom:calc(100% + 12px);transform:translate(-50%,6px);
+  display:block;width:clamp(180px,22vw,230px);max-width:calc(100vw - 42px);
+  padding:12px 14px;background:#fff;border:1px solid #f0e5ed;border-radius:16px;
+  box-shadow:0 8px 24px #47375a24;text-align:center;color:var(--wine);
+  white-space:normal;opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease,visibility .18s;
+}
+.pet-bubble:after{
+  content:"";position:absolute;left:calc(50% - 8px);bottom:-8px;width:14px;height:14px;
+  background:#fff;border-right:1px solid #f0e5ed;border-bottom:1px solid #f0e5ed;
+  transform:rotate(45deg);
+}
+.pet-avatar:hover .pet-bubble,.pet-avatar:focus-visible .pet-bubble,.pet-avatar.bubble-visible .pet-bubble{
+  opacity:1;visibility:visible;transform:translate(-50%,0);
+}
+.pet-bubble .speech-label{display:block;font-size:9px;color:var(--blue);font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.pet-bubble strong{display:block;font-size:14px;line-height:1.3;color:var(--wine);margin-bottom:5px}
+.pet-bubble-text{display:block;font-size:11px;line-height:1.45;color:#827584;font-weight:600}
+@media(max-width:760px){
+  .pet-bubble{width:190px;padding:10px 12px;bottom:calc(100% + 9px)}
+}
