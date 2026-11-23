@@ -59,7 +59,7 @@ footer{font-size:12px}
 .paw-marker{width:44px;height:44px;display:grid;place-items:center;filter:drop-shadow(0 2px 3px #3d293044);transition:transform .2s}
 .paw-marker:hover{transform:scale(1.18)}
 .pet-speech{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s,visibility .2s}
-.pet-speech.is-visible{opacity:1;visibility:visible}
+.pet-speech.is-visible{opacity:1;visibility:visible;pointer-events:auto}
 .calendar-day.event{background:#ead5c2;color:#75472f}
 .calendar-day.event:after{content:"";width:6px;height:6px;right:5px;top:5px;border-radius:50%;background:#9b613c}
 .calendar-day.today{background:#dceeff;color:#426b9e;box-shadow:inset 0 0 0 1px #a8cfee}
