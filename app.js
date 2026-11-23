@@ -33,7 +33,20 @@ document.getElementById('prev-month').addEventListener('click',()=>{calMonth--;i
 
 // Pet character interactions.
 const pets={rex:{title:'Привет, я Рекс!',text:'Я очень люблю гулять, а после прогулки всегда рад вкусному корму. Составишь мне компанию?'},mila:{title:'Привет, я Мила!',text:'Мне нравится спокойное общение и ласковые слова. Давай познакомимся без спешки?'},dach:{title:'Гав-гав, я Бублик!',text:'Я такса с большим сердцем и короткими лапками. Обожаю исследовать всё вокруг!'},black:{title:'Здравствуй, я Граф!',text:'Я серьёзный на вид, но очень ценю доброту и уважение к личному пространству.'},cat:{title:'Мяу, я Плюша!',text:'Я любопытная кошечка. Люблю наблюдать за всем с уютного места и знакомиться в своём темпе.'},kit:{title:'Привет, я Пончик!',text:'Я маленький исследователь! Мне нравятся игрушки, забота и вкусные кошачьи угощения.'}};
-document.querySelectorAll('[data-pet]').forEach(b=>{const show=()=>{document.querySelectorAll('[data-pet]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');const p=pets[b.dataset.pet];document.getElementById('pet-speech').innerHTML=`<span class="speech-label">говорит хвостик</span><h3>${p.title}</h3><p>${p.text}</p><div class="pet-links"><a href="#map">погулять / познакомиться ↗</a><a href="#map">помочь приюту ↗</a></div>`};b.addEventListener('mouseenter',show);b.addEventListener('focus',show);b.addEventListener('click',show)});
+const petSpeech=document.getElementById('pet-speech');
+document.querySelectorAll('[data-pet]').forEach(b=>{
+  const show=()=>{
+    document.querySelectorAll('[data-pet]').forEach(x=>x.classList.remove('selected'));
+    b.classList.add('selected');
+    const p=pets[b.dataset.pet];
+    if(!p)return;
+    petSpeech.innerHTML=`<span class="speech-label">говорит хвостик</span><h3>${p.title}</h3><p>${p.text}</p><div class="pet-links"><a href="#map">погулять / познакомиться ↗</a><a href="#map">помочь приюту ↗</a></div>`;
+    petSpeech.classList.add('is-visible');
+  };
+  b.addEventListener('mouseenter',show);
+  b.addEventListener('focus',show);
+  b.addEventListener('click',show);
+});
 
 // About section photo carousel — all images already present in the repository.
 const aboutPhotos=[
