@@ -64,10 +64,11 @@ document.querySelectorAll('[data-pet]').forEach(b=>{
 
 // About section photo carousel — all images already present in the repository.
 const aboutPhotos=[
-  {src:'колляж.jpg',alt:'Коллаж с нашими хвостатыми друзьями'},
-  {src:'мася.jpg',alt:'Мася — хвостатая подруга команды'},
-  {src:'doggy111.png',alt:'Рекс — один из наших хвостатых героев'},
-  {src:'dog-post-1.png',alt:'Собака из ленты Лапок Вышки'}
+  {src:'пупся1.jpg',alt:'Коллаж с нашими хвостатыми друзьями'},
+  {src:'коти1.jpg',alt:'Мася — хвостатая подруга команды'},
+  {src:'пупся2.jpg',alt:'Рекс — один из наших хвостатых героев'},
+  {src:'котя2.jpg',alt:'Собака из ленты Лапок Вышки'},
+  {src:'коти3.jpg',alt:'Рекс — один из наших хвостатых героев'}
 ];
 let aboutPhotoIndex=0;
 const aboutImage=document.getElementById('about-gallery-image');
