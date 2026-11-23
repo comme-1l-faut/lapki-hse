@@ -102,3 +102,31 @@ footer{font-size:12px}
 @media(max-width:760px){
   .pet-bubble{width:190px;padding:10px 12px;bottom:calc(100% + 9px)}
 }
+
+
+/* Social links directly beneath the round hero dog photo. */
+.hero-art{height:530px}
+.hero-dog{border-radius:50%;transform:none}
+.hero-caption{bottom:54px}
+.hero-socials{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  display:flex;justify-content:center;align-items:center;gap:10px;
+  width:max-content;max-width:100%;z-index:4
+}
+.hero-social-link{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 17px;border-radius:24px;background:#fff;
+  color:var(--wine);font-size:12px;font-weight:900;
+  border:1px solid #f0e5ed;box-shadow:0 5px 18px #47375a16;
+  transition:transform .2s,box-shadow .2s
+}
+.hero-social-link:hover{transform:translateY(-3px);box-shadow:0 8px 20px #47375a22}
+.telegram-link span{color:#399bd5;font-size:15px}
+.vk-link span{display:grid;place-items:center;width:18px;height:18px;border-radius:5px;background:#4776b8;color:white;font-size:10px;font-weight:900}
+@media(max-width:760px){
+  .hero-art{height:435px;margin-top:10px}
+  .hero-dog{width:260px;height:260px}
+  .hero-caption{bottom:48px;right:0}
+  .hero-socials{bottom:0}
+  .hero-social-link{padding:9px 14px;font-size:11px}
+}
